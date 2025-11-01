@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>The Dark BARBESHOP</title>
+  <style>
+    /* 🛍️ Estilos base de los productos */
+.producto {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: aparecer 0.6s ease forwards;
+}
+
+/* ✨ Animación de entrada */
+@keyframes aparecer {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 🔹 Animación de salida */
+.desaparecer {
+  animation: desaparecer 0.4s ease forwards;
+}
+
+@keyframes desaparecer {
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+    h1 {
+  color: #ffffff; /* 🔥 Cambia este color a lo que quieras */
+}
+
+      body {
+ font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #000000;  
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    .categorias {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .categorias button {
+      background: #fffab7;
+      color: rgb(0, 0, 0);
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 7px;
+    }
+    .productos {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+    .producto {
+      background: white;
+      border-radius: 8px;
+      padding: 10px;
+      width: 200px;
+      text-align: center;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .producto img {
+      width: 100%;
+      border-radius: 8px;
+    }
+    .producto button {
+      margin-top: 10px;
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    #carrito {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      max-width: 400px;
+      margin: 30px auto;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    #carrito h3 {
+      text-align: center;
+    }
+    #whatsapp-btn {
+      display: block;
+      width: 100%;
+      background: #25d366;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>The Dark BarberShop</h1>
+
+  <!-- BOTONES DE CATEGORÍAS -->
+  <div class="categorias">
+     <button onclick="mostrarCategoria('ofertas')">Lo mas TOP</button>
+    <button onclick="mostrarCategoria('Ceras')">Ceras</button>
+    <button onclick="mostrarCategoria('accesorios')">Accesorios</button>
+    <button onclick="mostrarCategoria('electronica')">Electrónica</button>
+  </div>
+
+  <!-- PRODUCTOS -->
+  <div id="productos" class="productos"></div>
+
+  <!-- CARRITO -->
+  <div id="carrito">
+    <h3>Carrito</h3>
+    <div id="lista-carrito"></div>
+    <p><strong>Total:</strong> $<span id="total">0</span></p>
+    <button id="whatsapp-btn" onclick="enviarPorWhatsApp()">Enviar pedido por WhatsApp</button>
+  </div>
+
+  <script>
+    // 👉 EDITA AQUÍ TU NÚMERO DE WHATSAPP (sin + ni espacios)
+    const numeroWhatsApp = "5215512345678";
+
+    // 👉 EDITA AQUÍ TUS PRODUCTOS
+    const productos = {
+        ofertas: [ 
+            { nombre: "Cera telaraña 4x4 100g", precio: 200, img: "https://i.postimg.cc/xTWD875C/Cera-Telarana-4x4-100g.jpg" },
+            { nombre: "Cera 4x4", precio: 350, img: "https://via.placeholder.com/200x200?text=Pantalon+Negro" }
+      ],
+      Ceras: [
+        { nombre: "Cera telara;a", precio: 200, img: "https://via.placeholder.com/200x200?text=Remera+Blanca" },
+        { nombre: "Cera 4x4", precio: 350, img: "https://via.placeholder.com/200x200?text=Pantalon+Negro" }
+      ],
+      accesorios: [
+        { nombre: "Gorra Azul", precio: 150, img: "https://via.placeholder.com/200x200?text=Gorra+Azul" },
+        { nombre: "Mochila", precio: 500, img: "https://via.placeholder.com/200x200?text=Mochila" }
+      ],
+      electronica: [
+        { nombre: "Auriculares", precio: 300, img: "https://via.placeholder.com/200x200?text=Auriculares" },
+        { nombre: "Smartwatch", precio: 800, img: "https://via.placeholder.com/200x200?text=Smartwatch" }
+      ]
+    };
+
+    let carrito = [];
+
+    // Muestra los productos de una categoría
+function mostrarCategoria(cat) {
+  const contenedor = document.getElementById("productos");
+
+  // 🔹 Aplica animación de salida si hay productos
+  if (contenedor.children.length > 0) {
+    [...contenedor.children].forEach((el) => {
+      el.classList.add("desaparecer");
+    });
+
+    // Espera a que termine la animación de salida antes de mostrar los nuevos
+    setTimeout(() => {
+      cargarNuevosProductos(cat, contenedor);
+    }, 400); // 0.4 segundos, igual que la animación CSS
+  } else {
+    cargarNuevosProductos(cat, contenedor);
+  }
+}
+
+function cargarNuevosProductos(cat, contenedor) {
+  contenedor.innerHTML = "";
+
+  productos[cat].forEach((p, index) => {
+    const delay = index * 100; // retrasa cada producto un poco
+    contenedor.innerHTML += `
+      <div class="producto" style="animation-delay: ${delay}ms">
+        <img src="${p.img}" alt="${p.nombre}">
+        <h4>${p.nombre}</h4>
+        <p>$${p.precio}</p>
+        <button onclick="agregarAlCarrito('${p.nombre}', ${p.precio})">Agregar al carrito</button>
+      </div>
+    `;
+  });
+}
+
+
+    // Agrega un producto al carrito
+    function agregarAlCarrito(nombre, precio) {
+      carrito.push({ nombre, precio });
+      actualizarCarrito();
+    }
+
+    // Actualiza la vista del carrito
+    function actualizarCarrito() {
+      const lista = document.getElementById("lista-carrito");
+      lista.innerHTML = carrito.map(p => `<p>${p.nombre} - $${p.precio}</p>`).join("");
+      const total = carrito.reduce((s, p) => s + p.precio, 0);
+      document.getElementById("total").textContent = total;
+    }
+
+    // Enviar pedido por WhatsApp
+    function enviarPorWhatsApp() {
+      if (carrito.length === 0) {
+        alert("Tu carrito está vacío 😅");
+        return;
+      }
+      const texto = encodeURIComponent(
+        "Hola! Quiero comprar estos productos:\n\n" +
+        carrito.map(p => `- ${p.nombre} ($${p.precio})`).join("\n") +
+        `\n\nTotal: $${carrito.reduce((t, p) => t + p.precio, 0)}`
+      );
+      window.open(`https://wa.me/${numeroWhatsApp}?text=${texto}`, "_blank");
+    }
+
+    // Mostrar la primera categoría por defecto
+    mostrarCategoria('ofertas');
+  </script>
+</body>
+</html>
